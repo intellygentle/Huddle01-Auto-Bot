@@ -375,7 +375,7 @@ const connectWebSocket = async (sushiUrl, meetingToken, geolocation) => {
           logger.warn('Timed out waiting for join confirmation, proceeding anyway');
         }
         resolve(ws);
-      }, 10000); 
+      }, 20000); 
       
       ws.on('message', (data) => {
         const message = data.toString();
@@ -421,7 +421,11 @@ const fetchRoomData = async (accessToken, posthogCookie, roomId) => {
     return true;
   } catch (error) {
     logger.error(`Failed to fetch room data: ${error.response?.data?.message || error.message}`);
-    return false; 
+    if (error.response?.status === 404) {
+      logger.error('Room not found. Please verify the room ID and try again.');
+      process.exit(1);
+    }
+    return false;
   }
 };
 
